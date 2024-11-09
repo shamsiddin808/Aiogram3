@@ -1,7 +1,12 @@
 import logging
 from aiogram import Bot, Dispatcher, types, F
-from aiogram.filters import Command
+from aiogram.filters import Command, CommandStart
 import asyncio
+from aiogram.types import ContentType, Message
+from aiogram.types import ContentType
+
+
+from aiogram import types
 import re
 
 logging.basicConfig(level=logging.INFO)
@@ -11,7 +16,6 @@ API_TOKEN = '6560320149:AAFeQaPjUVO4i13K1ZBY1_P1m2ebn5h-Xk0'
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
-
 @dp.message(Command("start"))
 async def start_command(message: types.Message):
     await message.reply("Salom! Bu oddiy AIogram 3.x bot.")
@@ -24,12 +28,16 @@ async def numbers_message(message: types.Message):
 async def echo_message(message: types.Message):
     await message.reply(message.text)
 
-from aiogram.types import ContentType
 
 @dp.message(F.content_type == ContentType.PHOTO)
 async def photo_message(message: types.Message):
+    photo = message.photo[-1]
+    await photo.download(destination_file="photo.png")
     await message.reply("Rasm uchun rahmat!")
 
+@dp.message(F.content_type == ContentType.VOICE)
+async def handle_voice_message(message: types.Message):
+    await message.reply("Thank you for the voice message!")
 
 @dp.message(F.chat.type == "private")
 async def private_chat_message(message: types.Message):
@@ -45,6 +53,7 @@ async def forwarded_message_handler(message: types.Message):
     await message.reply("Siz forward qilingan xabar yubordingiz.")
 
 
+
 async def main():
     try:
         print("Bot ishga tushmoqda...")
@@ -52,7 +61,5 @@ async def main():
     finally:
         await bot.session.close()
         logger.info("Bot seansi yopildi")
-
-
 if __name__ == "__main__":
     asyncio.run(main())
